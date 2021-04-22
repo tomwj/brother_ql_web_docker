@@ -24,17 +24,30 @@ to pin your deployment to a specific version.
 
 An example running the application with a QL-700 connected **via USB**:
 
+Create a `docker-compose.yaml` file containing
 ```
-docker run \
-  --name brother_ql_web \
-  --detach \
-  --rm \
-  --device=/dev/usb/lp0 \
-  --publish 8013:8013 \
-  --restart=always \
-  pklaus/brother_ql_web:latest \
-  ./brother_ql_web.py --model QL-700 file:///dev/usb/lp0
+version: '3'
+
+services:
+  print:
+    image: pklaus/brother_ql_web
+    command: ./brother_ql_web.py --model QL-700 file:///dev/usb/lp0
+    restart: unless-stopped
+    ports:
+      - 8013:8013
+    devices:
+      - /dev/usb/lp0:/dev/usb/lp0
+    #Uncomment below, to use system fonts
+    #volumes:
+    #  - /usr/share/fonts:/usr/share/fonts
+    # Or for user fonts
+    #  - ~/.fonts:/usr/share/fonts
 ```
+Run, this command in the folder where you created the `docker-compose.yaml`
+```
+docker-compose up --detach
+```
+If you make changes to `docker-compose.yaml` you can run `docker-compose up --detach` again. and to see logs run `docker-compose logs`
 
 Then you can access the web interface over via http://your-docker-host-ip:8013.
 
